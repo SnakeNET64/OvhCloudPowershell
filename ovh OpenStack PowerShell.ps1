@@ -8,9 +8,6 @@ class OvhCloud {
     hidden [string] $Username
     hidden [string] $Password
 
-
-
-
     hidden Initialize([string] $username, [string] $password){
         $body = (New-Object PSObject -Property @{ 
             auth = (New-Object PSObject -Property @{ 
@@ -58,7 +55,7 @@ class OvhCloud {
     }
 
 
-#Get-Region
+#Get-Regions
     [Object[]] getRegions() {
         return($this.Regions)
     }
@@ -164,6 +161,7 @@ class OvhCloud {
             Throw "OvhCloud.CreateKeypair : An exception was caught during keypair creation : $($_.Exception.Message)"
         }
     }
+    
     [void] RemoveKeypair($keyName){
         try{
             $result = Invoke-WebRequest -Headers $this.headers -Method DELETE -Uri "$($this.base_url)/os-keypairs/$($keyName)"
@@ -241,13 +239,11 @@ class OvhCloud {
     return($Server)
     }
 
-
     [void] DestroyInstance($name){
         $Server=$this.getInstance($name)
         $Result = Invoke-WebRequest -Headers $this.headers -Method DELETE -Uri "$($this.base_url)/servers/$($Server.id)" 
         Write-Host -nonewline "$($Server.name) :: "
         if ($($result.StatusCode) -eq 204) {Write-Host "Deleted" -foregroundcolor Green}else{Write-host "Failed" -foregroundcolor red}
-
     }
 
     [void] debug(){
@@ -256,15 +252,17 @@ class OvhCloud {
         Write-Host "Base URL   : $($this.base_url)"
         Write-Host "Network ID : $($this.NetworkId)"
     }
-        
 }
 
 
 
 <#
 $MonCloud = [OvhCloud]::new("LOGIN","PASSWORD","GRA11")
-$MonCloud.setRegion("GRA11")
+#or
+$MonCloud = [OvhCloud]::new("LOGIN","PASSWORD")
 $MonCloud.getRegions()
+$MonCloud.setRegion("GRA11")
+
 $MonCloud.getImages()
 $MonCloud.getImage("Debian 12 - Docker")
 $MonCloud.GetKeypair()
